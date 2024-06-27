@@ -33,6 +33,15 @@ function checkTable {
     return $true
 }
 
+function testJSONKey {
+    param(
+        [psobject]$jsonObject,
+        [string]$key
+    )
+
+    return $jsonObject.PSObject.Properties.Name -contains $key
+}
+
 function checkConfig {
     param (
         [string]$path
@@ -44,12 +53,27 @@ function checkConfig {
         return $false
     }
 
-    #Check if file has the .csv extension
+    #Check if file has the .json extension
     $fileExtension = [System.IO.Path]::GetExtension($path)
     if ($fileExtension -ne ".json") {
         . $debugModule -message "Error: The config is not a JSON file." -debugEnabled $debugEnabled
         return $false
     } 
+
+    #Check if all keys exist and have proper values
+    $requiredKeysInConfig = "csvDelimiter", "maxLinesToProccess", "parentDN", "defaultUserPassword"
+    $jsonContent = Get-Content -Path $configPath -Raw
+    $jsonObject = $jsonContent | ConvertFrom-Json
+
+    foreach ($key in $requiredKeysInConfig) {
+        if (testJSONKey -jsonObject $jsonObject -key $key) {
+            . $debugModule -message "Key '$key' exists in the config." -debugEnabled $debugEnabled
+        }
+        else {
+            . $debugModule -message "Required '$key' does not exist in the config." -debugEnabled $debugEnabled
+            return $false
+        }
+    }
 
     return $true
 }

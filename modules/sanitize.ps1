@@ -23,3 +23,6 @@ function copyTableToTMP {
 
 clearTMP
 copyTableToTMP -path $path
+
+$fileName = [System.IO.Path]::GetFileName($path)
+return  Join-Path $tmpDirectory $fileName

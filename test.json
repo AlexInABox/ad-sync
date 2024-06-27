@@ -1,0 +1,6 @@
+{
+    "csvDelimiter": ";",
+    "maxLinesToProccess": 0,
+    "parentDN": "OU=Dienststellen,OU=Benutzer,OU=ad,DC=msd,DC=polizei,DC=berlin,DC=de",
+    "defaultUserPassword": "**********"
+}

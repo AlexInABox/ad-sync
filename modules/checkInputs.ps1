@@ -61,7 +61,7 @@ function checkConfig {
     } 
 
     #Check if all keys exist and have proper values
-    $requiredKeysInConfig = "csvDelimiter", "maxLinesToProccess", "parentDN", "defaultUserPassword"
+    $requiredKeysInConfig = "csvDelimiter", "maxUsersToProccess", "parentDN", "header", "defaultUserPassword"
     $jsonContent = Get-Content -Path $configPath -Raw
     $jsonObject = $jsonContent | ConvertFrom-Json
 

@@ -34,6 +34,5 @@ if ($sanitizedTablePath -eq "") {
 . $debugModule -message  "Input table successfully sanitized!" -debugEnabled $debugEnabled
 
 #Use the sanitized table to fill the Active Directory specified in the config
-. $syncModule -path $sanitizedTablePath -configPath $configPath -debugEnabled $debugEnabled
+. $syncModule -csvPath $sanitizedTablePath -configPath $configPath -debugEnabled $debugEnabled
 . $debugModule -message  "Input table successfully sanitized!" -debugEnabled $debugEnabled
-

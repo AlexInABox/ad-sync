@@ -26,7 +26,7 @@ if (-Not (. $checkInputsModule -tablePath $tablePath -configPath $configPath -de
 . $debugModule -message  "All checks succeeded." -debugEnabled $debugEnabled
 
 #Sanitize input table
-$sanitizedTablePath = . $sanitizeModule -path $tablePath -debugEnabled $debugEnabled
+$sanitizedTablePath = . $sanitizeModule -path $tablePath -configPath $configPath -debugEnabled $debugEnabled
 if ($sanitizedTablePath -eq "") {
     . $debugModule -message "Failed to sanitize input table." -debugEnabled $debugEnabled
     return

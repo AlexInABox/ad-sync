@@ -9,31 +9,16 @@ Param(
     [bool]$debugEnabled = 1
 )
 
-import-module ActiveDirectory
+#import-module ActiveDirectory
 
 #Load config values
 $configObject = Get-Content -Path $configPath -Raw | ConvertFrom-Json
 [char]$delimiter = $configObject.csvDelimiter
-$maxUsersToProccess = $configObject.maxUsersToProccess
 $parentDN = $configObject.parentDN
 $header = $configObject.header -split $delimiter
 [string]$defaultUserPassword = $configObject.defaultUserPassword
 
-function removeHeaderFromCSV() {
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$file
-    )
-   
-    if ($maxUsersToProccess -eq 0) {
-        $content = Get-Content $file | Select-Object -Skip 1
-    }
-    else {
-        $content = Get-Content $file | Select-Object -Skip 1 -First $maxUsersToProccess
-    }
-    # Write the modified content back to the same file, overwriting it
-    $content | Set-Content $file
-}
+
 
 function buildUserObject() {
     param (
@@ -42,11 +27,12 @@ function buildUserObject() {
         [Parameter(Mandatory = $true)]
         [string]$givenName,
         [Parameter(Mandatory = $true)]
-        $location,
+        [string]$location,
         [Parameter(Mandatory = $true)]
         [string]$surName,
         [Parameter(Mandatory = $true)]
         [string]$telephoneNumber,
+        [Parameter(Mandatory = $true)]
         [string]$email
     )
 
@@ -76,8 +62,6 @@ function buildUserObject() {
 }
 
 #Remove the header
-removeHeaderFromCSV -file $csvPath
-
 $data = Import-Csv -Path $csvPath -Delimiter $delimiter -Header $header -Encoding UTF8
 
 #Add the default password to every user

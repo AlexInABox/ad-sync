@@ -35,4 +35,4 @@ if ($sanitizedTablePath -eq "") {
 
 #Use the sanitized table to fill the Active Directory specified in the config
 . $syncModule -csvPath $sanitizedTablePath -configPath $configPath -debugEnabled $debugEnabled
-. $debugModule -message  "Input table successfully sanitized!" -debugEnabled $debugEnabled
+. $debugModule -message  "Everything was synced! Yippie!!" -debugEnabled $debugEnabled

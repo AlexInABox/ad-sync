@@ -12,6 +12,8 @@ Param(
 #Import modules
 #import-module ActiveDirectory
 $buildUserObjectModule = Join-Path -Path $PSScriptRoot -ChildPath "buildUserObject.ps1"
+$addUserObjectToAD = Join-Path -Path $PSScriptRoot -ChildPath "addUserObjectToAD.ps1"
+
 
 
 #Load config values
@@ -51,9 +53,10 @@ $data = Import-Csv -Path $csvPath -Delimiter $delimiter -Header $header -Encodin
 #Add the default password to every user
 foreach ($user in $data) {
     #. $buildUserObjectModule -csvUserLine $user -configPath $configPath -debugEnabled $debugEnabled | Format-Table | Out-String | Write-Output
-    . $buildUserObjectModule -csvUserLine $user -configPath $configPath -debugEnabled $debugEnabled
+    $userObject = . $buildUserObjectModule -csvUserLine $user -configPath $configPath -debugEnabled $debugEnabled
     if (-Not $debugEnabled) {
-        $path = generatePathFromCanonicalName -canonicalName $user.CanonicalName
-        ensureOUExists -ouPath $path
+        . $addUserObjectToAD -userObject $userObject -configPath $configPath -debugEnabled $debugEnabled
     }
+
+
 }

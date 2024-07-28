@@ -23,5 +23,5 @@ jobs:
 
     - uses: actions/upload-artifact@v3
       with:
-        name: ad-sync.exe
+        name: ad-sync
         path: dist/windows/main.exe

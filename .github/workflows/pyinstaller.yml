@@ -3,7 +3,7 @@ name: Package Application with Pyinstaller
 
 on:
   push:
-    branches: [ main ]
+    branches: [ dev ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:

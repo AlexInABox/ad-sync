@@ -59,7 +59,7 @@ class App(customtkinter.CTk):
         self.textbox.grid(row=0, rowspan=2, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
 
         # create tabview
-        self.tabview = customtkinter.CTkTabview(self, width=400)
+        self.tabview = customtkinter.CTkTabview(self, width=400, height=390)
         self.tabview.grid(row=0, column=2, columnspan=2, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.tabview.add("Set input files")
         self.tabview.add("Preview config")
@@ -125,16 +125,29 @@ class App(customtkinter.CTk):
                 self.configPreview.insert("0.0", "Error loading the config file")
                 self.configPreview.configure(state="disabled")
 
-        self.configPreview = customtkinter.CTkTextbox(master=self.tabview.tab("Preview config"), width=350, height=250)
+        self.configPreview = customtkinter.CTkTextbox(master=self.tabview.tab("Preview config"), width=350, height=320)
         self.configPreview.pack(pady=10, padx=10)
         self.configPreview.insert("0.0", "Preview of the config file")
-        self.loadConfigButton = customtkinter.CTkButton(master=self.tabview.tab("Preview config"), text="Load config", command=loadConfig)
-        self.loadConfigButton.pack(pady=10, padx=10)
+        self.tabview.tab("Preview config").bind("<Visibility>", lambda event: loadConfig())
 
         #Preview table
-        self.tablePreview = customtkinter.CTkTextbox(master=self.tabview.tab("Preview table"), width=250)
+        def loadTable():
+            try:
+                with open(self.table_picker.get(), "r") as file:
+                    self.tablePreview.configure(state="normal")
+                    self.tablePreview.delete("0.0", "end")
+                    self.tablePreview.insert("0.0", file.read())
+                    self.tablePreview.configure(state="disabled")
+            except:
+                self.tablePreview.configure(state="normal")
+                self.tablePreview.delete("0.0", "end")
+                self.tablePreview.insert("0.0", "Error loading the table file")
+                self.tablePreview.configure(state="disabled")
+
+        self.tablePreview = customtkinter.CTkTextbox(master=self.tabview.tab("Preview table"), width=350, height=320)
         self.tablePreview.pack(pady=10, padx=10)
         self.tablePreview.insert("0.0", "Preview of the table file")
+        self.tabview.tab("Preview table").bind("<Visibility>", lambda event: loadTable())
 
         # create checkbox and switch frame
         self.checkbox_slider_frame = customtkinter.CTkFrame(self, height=50)
@@ -159,7 +172,7 @@ class App(customtkinter.CTk):
     def change_scaling_event(self, new_scaling: str):
         new_scaling_float = int(new_scaling.replace("%", "")) / 100
         customtkinter.set_widget_scaling(new_scaling_float)
-
+        
     def githubButtonClick(self):
         print("GitHub Button was clicked! Yippie!")
         #Open the GitHub Repository in the default browser

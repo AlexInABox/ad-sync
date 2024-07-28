@@ -1,4 +1,4 @@
-from tkinter import StringVar, TOP, messagebox
+from tkinter import StringVar, TOP
 from tkinterdnd2 import TkinterDnD, DND_ALL
 import webbrowser
 import customtkinter
@@ -136,7 +136,9 @@ class App(customtkinter.CTk):
                 with open(self.table_picker.get(), "r") as file:
                     self.tablePreview.configure(state="normal")
                     self.tablePreview.delete("0.0", "end")
-                    self.tablePreview.insert("0.0", file.read())
+                    for i in range(10):
+                        self.tablePreview.insert("end", file.readline())
+                    self.tablePreview.insert("end", "...")
                     self.tablePreview.configure(state="disabled")
             except:
                 self.tablePreview.configure(state="normal")

@@ -15,6 +15,14 @@ $checkInputsModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\checkInp
 $sanitizeModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\sanitize.ps1"
 $syncModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\sync.ps1"
 
+#Delete old logs
+try {
+    Remove-Item -Path "./modules/debug.log" -ErrorAction Stop
+}
+catch {
+    . $debugModule -message "No old logs found." -debugEnabled $debugEnabled
+}
+
 
 
 #Check if all required inputs are available

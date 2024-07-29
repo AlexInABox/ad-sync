@@ -43,10 +43,9 @@ function ensureOUExists {
 
 function userAlreadyExists {
     $alreadyExists = 1
-    try {
-        Get-ADUser $userObject.Name
-    }
-    catch {
+    $getADUser = (Get-ADUser -Filter "Name -eq '$($userObject.Name)'")
+    
+    if ($null -eq $getADUser) {
         #Write-Host "Yippie" $userObject.Name "is unique!!"
         $alreadyExists = 0
     }

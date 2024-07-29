@@ -2,6 +2,10 @@ from tkinter import StringVar, TOP
 from tkinterdnd2 import TkinterDnD, DND_ALL
 import webbrowser
 import customtkinter
+import subprocess
+import threading
+import time
+
 
 class CTk(customtkinter.CTk, TkinterDnD.DnDWrapper):
     def __init__(self, *args, **kwargs):
@@ -48,10 +52,10 @@ class App(customtkinter.CTk):
         self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
 
         # create main entry and button
-        self.entry = customtkinter.CTkEntry(self, placeholder_text="./main.ps1 -config config.json -table table.csv")
+        self.entry = customtkinter.CTkEntry(self, placeholder_text="./main.ps1 -configPath config.json -tablePath table.csv -debugEnabled 1")
         self.entry.grid(row=3, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="nsew")
 
-        self.main_button_1 = customtkinter.CTkButton(master=self, fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), text="Sync Active Directory")
+        self.main_button_1 = customtkinter.CTkButton(master=self, command=self.startSyncProcess)
         self.main_button_1.grid(row=3, column=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
 
         # create textbox
@@ -68,6 +72,11 @@ class App(customtkinter.CTk):
         self.tabview.tab("Preview config").grid_columnconfigure(0, weight=1)
 
         #File Picker
+        def updateEntry():
+            self.entry.configure(state="normal")
+            self.entry.configure(placeholder_text="./timingtest.ps1 -configPath \"" + self.config_picker.get() + "\" -tablePath \"" + self.table_picker.get() + "\" -debugEnabled " + str(self.checkbox_1.get()))
+            self.entry.configure(state="disabled")
+
         def getPathFromEvent(event):
             return event.data
 
@@ -81,6 +90,7 @@ class App(customtkinter.CTk):
             else:
                 self.config_picker.configure(textvariable=StringVar())
                 self.configPathLabel.configure(text="The config file must be in JSON format", text_color="red")
+            updateEntry()
 
         def checkIfCSV(event):
             path = getPathFromEvent(event)
@@ -92,6 +102,7 @@ class App(customtkinter.CTk):
             else:
                 self.table_picker.configure(textvariable=StringVar())
                 self.tablePathLabel.configure(text="The input table file must be in CSV format", text_color="red")
+            updateEntry()
 
         self.config_picker = customtkinter.CTkEntry(master=self.tabview.tab("Set input files"))
         self.config_picker.pack(pady=10, padx=10)
@@ -154,7 +165,7 @@ class App(customtkinter.CTk):
         # create checkbox and switch frame
         self.checkbox_slider_frame = customtkinter.CTkFrame(self, height=50)
         self.checkbox_slider_frame.grid(row=1, column=2, columnspan=2, padx=(20, 20), pady=(20, 0), sticky="nsew")
-        self.checkbox_1 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame)
+        self.checkbox_1 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame, command=updateEntry)
         self.checkbox_1.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="n")
 
         # set default values
@@ -167,6 +178,7 @@ class App(customtkinter.CTk):
         self.tablePreview.configure(state="disabled")
         self.checkbox_1.configure(text="Debug?")
         self.checkbox_1.select()
+        self.main_button_1.configure(fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), text="Sync Active Directory")
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -179,6 +191,68 @@ class App(customtkinter.CTk):
         print("GitHub Button was clicked! Yippie!")
         #Open the GitHub Repository in the default browser
         webbrowser.open_new("https://github.com/alexinabox/ad-sync")
+
+    def startSyncProcess(self):
+        self.main_button_1.configure(state="disabled")
+        print("Sync Active Directory Button was clicked! Yippie!")
+
+        #Check if the config and table file are set
+        #Update one last time
+        self.entry.configure(state="normal")
+        self.entry.configure(placeholder_text="./main.ps1 -configPath \"" + self.config_picker.get() + "\" -tablePath \"" + self.table_picker.get() + "\" -debugEnabled " + str(self.checkbox_1.get()))
+        self.entry.configure(state="disabled")
+        
+        if (self.config_picker.get() == "" or self.table_picker.get() == ""):
+            self.textbox.configure(state="normal")
+            self.textbox.delete("0.0", "end")
+            self.textbox.insert("0.0", "Please set the config and table file first")
+            self.textbox.configure(text_color="red")
+            self.textbox.configure(state="disabled")
+            self.main_button_1.configure(state="normal")
+            return
+        
+        #Execute command that sits in the entry field as a placeholder
+        self.textbox.configure(text_color=("black", "white"))
+        command = self.entry.cget("placeholder_text")
+        print(command)
+        self.textbox.configure(state="normal")
+        self.textbox.delete("0.0", "end")
+        self.textbox.configure(state="disabled")
+
+        def refreshLog(log):
+            self.textbox.configure(state="normal")
+            self.textbox.delete("0.0", "end")
+            self.textbox.insert("0.0", log)
+            self.textbox.configure(state="disabled")
+            self.main_button_1.configure(state="normal")
+        def appendLog(log):
+            self.textbox.configure(state="normal")
+            self.textbox.insert("end", log)
+            self.textbox.configure(state="disabled")
+        #Start a thread that reads the log file and updates the textbox every second
+        
+        commandFinished = threading.Event()
+        def executeCommand():
+            subprocess.call(["powershell.exe", command])
+            time.sleep(1) #Delay the termination of the thread to ensure the log file is read completely
+            commandFinished.set()
+            
+        def readLogFile(self, refreshLog):
+            log = ""
+            while not commandFinished.is_set():
+                try:
+                    with open("./modules/debug.log", "r") as file:
+                        log = file.read()
+                except:
+                    log = "Error reading the log file"
+                if log != self.textbox.get("0.0", "end"):
+                    refreshLog(log)
+                time.sleep(1)
+            appendLog("\n\nScript execution finished\n")
+
+        threading.Thread(target=executeCommand).start()
+        threading.Thread(target=readLogFile, args=(self, refreshLog)).start()
+
 
 
 if __name__ == "__main__":

@@ -49,12 +49,20 @@ function userAlreadyExists {
         #Write-Host "Yippie" $userObject.Name "is unique!!"
         $alreadyExists = 0
     }
+
     return $alreadyExists
 }
 
 if (userAlreadyExists) {
     Write-Host "User already exists"
     #TODO: Copy old permissions and then delete old user
+    return
 }
 
 ensureOUExists($userObject.path)
+
+#Create the user
+Write-Host "Creating user $($userObject.Name)"
+New-ADUser @userObject
+
+return

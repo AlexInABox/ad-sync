@@ -5,3 +5,4 @@ echt.csv
 .backupCSV
 /build
 /dist
+modules/debug.log

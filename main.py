@@ -74,7 +74,7 @@ class App(customtkinter.CTk):
         #File Picker
         def updateEntry():
             self.entry.configure(state="normal")
-            self.entry.configure(placeholder_text="./timingtest.ps1 -configPath \"" + self.config_picker.get() + "\" -tablePath \"" + self.table_picker.get() + "\" -debugEnabled " + str(self.checkbox_1.get()))
+            self.entry.configure(placeholder_text="./main.ps1 -configPath \"" + self.config_picker.get() + "\" -tablePath \"" + self.table_picker.get() + "\" -debugEnabled " + str(self.checkbox_1.get()))
             self.entry.configure(state="disabled")
 
         def getPathFromEvent(event):

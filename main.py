@@ -199,7 +199,7 @@ class App(customtkinter.CTk):
         #Check if the config and table file are set
         #Update one last time
         self.entry.configure(state="normal")
-        self.entry.configure(placeholder_text="./main.ps1 -configPath \"" + self.config_picker.get() + "\" -tablePath \"" + self.table_picker.get() + "\" -debugEnabled " + str(self.checkbox_1.get()))
+        self.entry.configure(placeholder_text="./main.ps1 -configPath \"" + self.config_picker.get() + "\" -tablePath \"" + self.table_picker.get() + "\" -readOnly " + str(self.checkbox_1.get()))
         self.entry.configure(state="disabled")
         
         if (self.config_picker.get() == "" or self.table_picker.get() == ""):

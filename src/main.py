@@ -5,6 +5,10 @@ import customtkinter
 import subprocess
 import threading
 import time
+import shutil
+import tempfile
+import os
+import sys
 
 
 class CTk(customtkinter.CTk, TkinterDnD.DnDWrapper):
@@ -214,6 +218,10 @@ class App(customtkinter.CTk):
         #Execute command that sits in the entry field as a placeholder
         self.textbox.configure(text_color=("black", "white"))
         command = self.entry.cget("placeholder_text")
+        # add Set-Location '{temp_dir}'; to the command to ensure the script is executed in the correct directory
+        command = "Set-Location '" + temp_dir + "'; " + command
+        #add a .\ in front of the script path to ensure it is executed
+        #command = "./" + command
         print(command)
         self.textbox.configure(state="normal")
         self.textbox.delete("0.0", "end")
@@ -243,7 +251,7 @@ class App(customtkinter.CTk):
             log = ""
             while not commandFinished.is_set():
                 try:
-                    with open("./modules/debug.log", "r") as file:
+                    with open(temp_dir + "/modules/debug.log", "r") as file:
                         log = file.read()
                 except:
                     log = "Error reading the log file"
@@ -255,8 +263,49 @@ class App(customtkinter.CTk):
         threading.Thread(target=executeCommand).start()
         threading.Thread(target=readLogFile, args=(self, refreshLog)).start()
 
+def copy_to_temp(src, dst):
+    if os.path.isdir(src):
+        if os.path.exists(dst):
+            shutil.rmtree(dst)  # Remove the existing directory
+        shutil.copytree(src, dst)
+    else:
+        shutil.copy2(src, dst)
 
+script_src_path = None
+temp_dir = None
+
+def initiateCopyProccess():
+    global script_temp_path
+    global temp_dir
+
+    # Determine the path to the extracted files
+    if getattr(sys, 'frozen', False):
+        # If the application is frozen, this is the temporary folder created by PyInstaller
+        bundle_dir = sys._MEIPASS
+    else:
+        # If the application is not frozen, use the script's directory
+        bundle_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Path to the temporary directory
+    temp_dir = tempfile.gettempdir()
+
+    # Paths to the bundled resources
+    script_src_path = os.path.join(bundle_dir, 'main.ps1')
+    modules_src_path = os.path.join(bundle_dir, 'modules')
+    tmp_src_path = os.path.join(bundle_dir, 'tmp')
+
+
+    # Paths to the temporary locations
+    script_temp_path = os.path.join(temp_dir, 'main.ps1')
+    modules_temp_path = os.path.join(temp_dir, 'modules')
+    tmp_temp_path = os.path.join(temp_dir, 'tmp')
+
+    # Copy the script and the modules directory to the temporary location
+    copy_to_temp(script_src_path, script_temp_path)
+    copy_to_temp(modules_src_path, modules_temp_path)
+    copy_to_temp(tmp_src_path, tmp_temp_path)
 
 if __name__ == "__main__":
+    initiateCopyProccess()
     app = App()
     app.mainloop()

@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all
 
-datas = []
+datas = [('main.ps1', '.'), ('modules', 'modules'), ('tmp', 'tmp')]
 binaries = []
 hiddenimports = []
 tmp_ret = collect_all('tkinterdnd2')
@@ -19,7 +19,6 @@ a = Analysis(
     runtime_hooks=[],
     excludes=[],
     noarchive=False,
-    optimize=0,
 )
 pyz = PYZ(a.pure)
 

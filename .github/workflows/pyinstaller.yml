@@ -27,7 +27,7 @@ jobs:
     - name: Copy artifact to root
       run: |
         cp -fr dist/windows/main.exe main.exe
-        rm -rf dist
+        sudo rm -rf dist
 
     - name: Commit and push artifact
       uses: stefanzweifel/git-auto-commit-action@v5

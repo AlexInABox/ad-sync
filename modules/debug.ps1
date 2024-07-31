@@ -1,14 +1,9 @@
 Param(
     [Parameter(Mandatory = $true)]
-    [string]$message,
-
-    [Parameter(Mandatory = $false)]
-    [bool]$debugEnabled = 1
+    [string]$message
 )
 
 $logFile = "./modules/debug.log"
 
-if ($debugEnabled) {
-    Write-Host $message
-    Add-Content -Path $logFile -Value $message
-}
+Write-Host $message
+Add-Content -Path $logFile -Value $message

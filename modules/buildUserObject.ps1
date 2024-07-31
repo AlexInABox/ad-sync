@@ -3,10 +3,7 @@ Param(
     $csvUserLine,
 
     [Parameter(Mandatory = $true)]
-    [string]$configPath,
-
-    [Parameter(Mandatory = $false)]
-    [bool]$debugEnabled = 1
+    [string]$configPath
 )
 
 #Load config values

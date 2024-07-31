@@ -3,10 +3,7 @@ Param(
     [string]$tablePath,
 
     [Parameter(Mandatory = $true)]
-    [string]$configPath,
-
-    [Parameter(Mandatory = $false)]
-    [bool]$debugEnabled = 1
+    [string]$configPath
 )
 
 #Modules
@@ -19,16 +16,16 @@ function checkTable {
 
     #Check if file exists
     if (-Not (Test-Path -Path $path -PathType Leaf)) {
-        . $debugModule -message "Error: The table does not exist!" -debugEnabled $debugEnabled
+        . $debugModule -message "Error: The table does not exist!"
         return $false
     }
 
     #Check if file has the .csv extension
     $fileExtension = [System.IO.Path]::GetExtension($path)
     if ($fileExtension -ne ".csv") {
-        . $debugModule -message "Error: The table is not a CSV file." -debugEnabled $debugEnabled
+        . $debugModule -message "Error: The table is not a CSV file."
         return $false
-    } 
+    }
 
     return $true
 }
@@ -49,14 +46,14 @@ function checkConfig {
 
     #Check if file exists
     if (-Not (Test-Path -Path $path -PathType Leaf)) {
-        . $debugModule -message "Error: The config does not exist!" -debugEnabled $debugEnabled
+        . $debugModule -message "Error: The config does not exist!"
         return $false
     }
 
     #Check if file has the .json extension
     $fileExtension = [System.IO.Path]::GetExtension($path)
     if ($fileExtension -ne ".json") {
-        . $debugModule -message "Error: The config is not a JSON file." -debugEnabled $debugEnabled
+        . $debugModule -message "Error: The config is not a JSON file."
         return $false
     } 
 
@@ -67,10 +64,10 @@ function checkConfig {
 
     foreach ($key in $requiredKeysInConfig) {
         if (testJSONKey -jsonObject $jsonObject -key $key) {
-            . $debugModule -message "Key '$key' exists in the config." -debugEnabled $debugEnabled
+            . $debugModule -message "Key '$key' exists in the config."
         }
         else {
-            . $debugModule -message "Required '$key' does not exist in the config." -debugEnabled $debugEnabled
+            . $debugModule -message "Required '$key' does not exist in the config."
             return $false
         }
     }

@@ -52,7 +52,7 @@ class App(customtkinter.CTk):
         self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
 
         # create main entry and button
-        self.entry = customtkinter.CTkEntry(self, placeholder_text="./main.ps1 -configPath config.json -tablePath table.csv -debugEnabled 1")
+        self.entry = customtkinter.CTkEntry(self, placeholder_text="./main.ps1 -configPath config.json -tablePath table.csv -readOnly 1")
         self.entry.grid(row=3, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="nsew")
 
         self.main_button_1 = customtkinter.CTkButton(master=self, command=self.startSyncProcess)
@@ -74,7 +74,7 @@ class App(customtkinter.CTk):
         #File Picker
         def updateEntry():
             self.entry.configure(state="normal")
-            self.entry.configure(placeholder_text="./main.ps1 -configPath \"" + self.config_picker.get() + "\" -tablePath \"" + self.table_picker.get() + "\" -debugEnabled " + str(self.checkbox_1.get()))
+            self.entry.configure(placeholder_text="./main.ps1 -configPath \"" + self.config_picker.get() + "\" -tablePath \"" + self.table_picker.get() + "\" -readOnly " + str(self.checkbox_1.get()))
             self.entry.configure(state="disabled")
 
         def getPathFromEvent(event):
@@ -169,14 +169,14 @@ class App(customtkinter.CTk):
         self.checkbox_1.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="n")
 
         # set default values
-        self.appearance_mode_optionemenu.set("Dark")
+        self.appearance_mode_optionemenu.set("System")
         self.scaling_optionemenu.set("100%")
         self.entry.configure(state="disabled")
         self.textbox.insert("0.0", "ad-sync log:\n\n" + "Don't do the cat!\n" * 40)
         self.textbox.configure(state="disabled")
         self.configPreview.configure(state="disabled")
         self.tablePreview.configure(state="disabled")
-        self.checkbox_1.configure(text="Debug?")
+        self.checkbox_1.configure(text="Read only mode?")
         self.checkbox_1.select()
         self.main_button_1.configure(fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), text="Sync Active Directory")
 

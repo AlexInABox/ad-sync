@@ -6,3 +6,5 @@ echt.csv
 /build
 /dist
 modules/debug.log
+test.json
+test.csv

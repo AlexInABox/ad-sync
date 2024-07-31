@@ -223,11 +223,13 @@ class App(customtkinter.CTk):
             self.textbox.configure(state="normal")
             self.textbox.delete("0.0", "end")
             self.textbox.insert("0.0", log)
+            self.textbox.see("end")
             self.textbox.configure(state="disabled")
             self.main_button_1.configure(state="normal")
         def appendLog(log):
             self.textbox.configure(state="normal")
             self.textbox.insert("end", log)
+            self.textbox.see("end")
             self.textbox.configure(state="disabled")
         #Start a thread that reads the log file and updates the textbox every second
         

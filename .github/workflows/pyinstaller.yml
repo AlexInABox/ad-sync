@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Package Application
       uses: JackMcKew/pyinstaller-action-windows@main
@@ -30,7 +30,7 @@ jobs:
 
     - name: Copy artifact to root
       run: |
-        cp -fr src/dist/windows/main.exe main.exe
+        cp -fr src/dist/windows/main.exe ad-sync.exe
         sudo rm -rf src/dist
 
     - name: Commit and push artifact
@@ -42,6 +42,6 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         draft: true
-        files: main.exe
+        files: ad-sync.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

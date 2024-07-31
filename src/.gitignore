@@ -1,0 +1,9 @@
+.env
+.$ad-sync.drawio.bkp
+echt.csv
+.backupCSV
+/build
+/dist
+modules/debug.log
+test.json
+test.csv

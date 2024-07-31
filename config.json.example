@@ -1,0 +1,7 @@
+{
+    "csvDelimiter": ";",
+    "maxUsersToProccess": 10,
+    "parentDN": "OU=Abschnitte,OU=Mitarbeiter,OU=ad,DC=haupt,DC=zoll,DC=berlin,DC=de",
+    "header": "Name;DisplayName;GivenName;Surname;Mail;telephoneNumber;CanonicalName;UserPrincipalName",
+    "defaultUserPassword": "Simon1234"
+}

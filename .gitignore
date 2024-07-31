@@ -8,3 +8,4 @@ echt.csv
 modules/debug.log
 test.json
 test.csv
+.vscode/settings.json

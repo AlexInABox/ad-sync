@@ -6,19 +6,11 @@ Param(
     [string]$configPath,
 
     [Parameter(Mandatory = $false)]
-    [bool]$debugEnabled = 1
+    [bool]$readOnly = 1
 )
 
-#Load config values
-$configObject = Get-Content -Path $configPath -Raw | ConvertFrom-Json
+#Load modules
 $debugModule = Join-Path -Path $PSScriptRoot -ChildPath "debug.ps1"
-
-#check if user already exists
-###copy group permissions to new userObject
-###delete old user
-#add user to AD
-#maybe: give user group permissions
-
 
 #Check if all the OUs in the path of a user exist, if not create them
 function ensureOUExists {
@@ -35,12 +27,30 @@ function ensureOUExists {
         if ($ouExists) {
             continue
         }
+        if ($readOnly) {
+            Write-Host "Would have created OU: $($ouSubPath)"
+            continue
+        }
         # If the OU doesn't exist, create it
-        . $debugModule -message "Adding OU to AD: $($ouSubPath)" -debugEnabled $debugEnabled
+        . $debugModule -message "Adding OU to AD: $($ouSubPath)"
         New-ADOrganizationalUnit -Name ($ouComponents[$i] -replace "^OU=", "") -Path ($ouComponents[($i + 1)..($ouComponents.Length - 1)] -join ",")
+        # Create a security group inside that OU and add it as a member of that one above
+        . $debugModule -message "Adding Security Group"
+        $normalizedOUName = (($ouComponents[$i] -replace "^OU=", "").ToLower() -replace " ", "") #normalize name to lowercase and remove any spaces
+        $normalizedParentOUName = (($ouComponents[($i + 1)] -replace "^OU=", "").ToLower() -replace " ", "")
+
+        New-ADGroup -Name ("g-org-$($normalizedOUName)") -GroupScope Global -GroupCategory Security -Path ($ouComponents[($i)..($ouComponents.Length - 1)] -join ",")
+        Add-ADGroupMember -Identity ("g-org-$($normalizedParentOUName)") -Members ("g-org-$($normalizedOUName)")
     }
 }
 
+function addUserToOUGroup {
+    #Using the userObject path, add the user to the corresponding OU group
+    $ouComponents = $userObject.path -split ","
+    $normalizedOUName = (($ouComponents[0] -replace "^OU=", "").ToLower() -replace " ", "") #normalize name to lowercase and remove any spaces
+
+    Add-ADGroupMember -Identity ("g-org-$($normalizedOUName)") -Members $userObject.SamAccountName        
+}
 function userAlreadyExists {
     $alreadyExists = 1
     $getADUser = (Get-ADUser -Filter "Name -eq '$($userObject.Name)'")
@@ -54,15 +64,44 @@ function userAlreadyExists {
 }
 
 if (userAlreadyExists) {
-    Write-Host "User already exists"
-    #TODO: Copy old permissions and then delete old user
-    return
+    . $debugModule -message "User $($userObject.Name) already exists in the Active Directory."
+    if ($readOnly) {
+        . $debugModule -message "Would have deleted and recreated user $($userObject.Name) in the Active Directory."
+        return
+    }
+    #Copy old permissions and then delete old user
+    $oldUser = (Get-ADUser -Filter "Name -eq '$($userObject.Name)'")
+    $oldUserGroups = Get-ADUser -Identity $oldUser.SamAccountName -Properties MemberOf | Select-Object -ExpandProperty MemberOf | Get-ADGroup | Select-Object -ExpandProperty Name
+    $oldUserGroups = $oldUserGroups -split " "
+
+    #Delete old user
+    . $debugModule -message "Deleting user $($userObject.Name)"
+    Remove-ADUser -Identity $oldUser.SamAccountName -Confirm:$false
+
+    #Recreate user
+    . $debugModule -message "Recreating user $($userObject.Name)"
+    ensureOUExists($userObject.path)
+    New-ADUser @userObject
+
+    #Add new user to old user groups
+    for ($i = 0; $i -lt $oldUserGroups.Length; $i++) {
+        . $debugModule -message "Re-adding user $($userObject.Name) to group $($oldUserGroups[$i])"
+        Add-ADGroupMember -Identity $oldUserGroups[$i] -Members $userObject.SamAccountName
+    }
 }
+else {
+    if ($readOnly) {
+        . $debugModule -message "Would have created user $($userObject.Name) in the Active Directory."
+        return
+    }
+    #Ensure the OU exists
+    ensureOUExists($userObject.path)
 
-ensureOUExists($userObject.path)
-
-#Create the user
-Write-Host "Creating user $($userObject.Name)"
-New-ADUser @userObject
+    #Create the user
+    . $debugModule -message "Creating user $($userObject.Name)"
+    New-ADUser @userObject
+}
+#Add user to the OU group
+addUserToOUGroup
 
 return

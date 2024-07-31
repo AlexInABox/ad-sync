@@ -28,7 +28,7 @@ function ensureOUExists {
             continue
         }
         if ($readOnly) {
-            Write-Host "Would have created OU: $($ouSubPath)"
+            #Write-Host "Would have created OU: $($ouSubPath)"
             continue
         }
         # If the OU doesn't exist, create it
@@ -64,9 +64,9 @@ function userAlreadyExists {
 }
 
 if (userAlreadyExists) {
-    . $debugModule -message "User $($userObject.Name) already exists in the Active Directory."
+    #. $debugModule -message "User $($userObject.Name) already exists in the Active Directory."
     if ($readOnly) {
-        . $debugModule -message "Would have deleted and recreated user $($userObject.Name) in the Active Directory."
+        #. $debugModule -message "Would have deleted and recreated user $($userObject.Name) in the Active Directory."
         return
     }
     #Copy old permissions and then delete old user
@@ -75,30 +75,30 @@ if (userAlreadyExists) {
     $oldUserGroups = $oldUserGroups -split " "
 
     #Delete old user
-    . $debugModule -message "Deleting user $($userObject.Name)"
+    #. $debugModule -message "Deleting user $($userObject.Name)"
     Remove-ADUser -Identity $oldUser.SamAccountName -Confirm:$false
 
     #Recreate user
-    . $debugModule -message "Recreating user $($userObject.Name)"
+    #. $debugModule -message "Recreating user $($userObject.Name)"
     ensureOUExists($userObject.path)
     New-ADUser @userObject
 
     #Add new user to old user groups
     for ($i = 0; $i -lt $oldUserGroups.Length; $i++) {
-        . $debugModule -message "Re-adding user $($userObject.Name) to group $($oldUserGroups[$i])"
+        #. $debugModule -message "Re-adding user $($userObject.Name) to group $($oldUserGroups[$i])"
         Add-ADGroupMember -Identity $oldUserGroups[$i] -Members $userObject.SamAccountName
     }
 }
 else {
     if ($readOnly) {
-        . $debugModule -message "Would have created user $($userObject.Name) in the Active Directory."
+        #. $debugModule -message "Would have created user $($userObject.Name) in the Active Directory."
         return
     }
     #Ensure the OU exists
     ensureOUExists($userObject.path)
 
     #Create the user
-    . $debugModule -message "Creating user $($userObject.Name)"
+    #. $debugModule -message "Creating user $($userObject.Name)"
     New-ADUser @userObject
 }
 #Add user to the OU group

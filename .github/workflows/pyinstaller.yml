@@ -20,9 +20,8 @@ jobs:
     permissions: write-all
 
     steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: ${{ github.head_ref }}
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
     - name: Package Application
       uses: JackMcKew/pyinstaller-action-windows@main
@@ -37,43 +36,12 @@ jobs:
     - name: Commit and push artifact
       uses: stefanzweifel/git-auto-commit-action@v5
       with:
-        commit_message: Commit compiled artifact
-
-    - name: Get latest tag
-      id: get_latest_tag
-      run: |
-        latest_tag=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "none")
-        echo "::set-output name=LATEST_TAG::$latest_tag"
-    
-    - name: Increment tag
-      id: increment_tag
-      run: |
-        latest_tag=${{ steps.get_latest_tag.outputs.LATEST_TAG }}
-        echo "Latest tag: $latest_tag"
-        if [ "$latest_tag" = "none" ]; then
-          new_tag="v0.0.1"
-        else
-          IFS='.' read -r -a tag_parts <<< "${latest_tag//v/}"
-          major=${tag_parts[0]}
-          minor=${tag_parts[1]}
-          patch=${tag_parts[2]}
-          new_patch=$((patch + 1))
-          new_tag="v${major}.${minor}.${new_patch}"
-        fi
-        echo "New tag: $new_tag"
-        echo "::set-output name=NEW_TAG::$new_tag"
-
-    - name: Create new tag
-
-      run: |
-        new_tag=${{ steps.increment_tag.outputs.NEW_TAG }}
-        git tag $new_tag
-        git push origin $new_tag
+        commit_message: AUTO-COMPILED
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ steps.increment_tag.outputs.NEW_TAG }}
+        draft: true
         files: main.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

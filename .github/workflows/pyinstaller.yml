@@ -20,19 +20,13 @@ jobs:
       uses: JackMcKew/pyinstaller-action-windows@main
       with:
         path: .
-        
+
     - name: Copy artifact to root
       run: |
-        mkdir -p .tmp
-        cp dist/windows/main.exe .tmp/main.exe
+        cp -fr dist/windows/main.exe main.exe
+        rm -rf dist
 
     - name: Commit and push artifact
-      run: |
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        cp .tmp/main.exe ./main.exe
-        git add main.exe
-        git commit -m 'Add compiled .exe to repository'
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: Commit compiled artifact

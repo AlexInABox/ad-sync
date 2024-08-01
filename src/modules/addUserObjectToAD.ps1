@@ -11,6 +11,9 @@ Param(
 
 #Load modules
 $debugModule = Join-Path -Path $PSScriptRoot -ChildPath "debug.ps1"
+$statsModule = Join-Path -Path $PSScriptRoot -ChildPath "stats.ps1"
+
+#import-module ActiveDirectory
 
 #Check if all the OUs in the path of a user exist, if not create them
 function ensureOUExists {
@@ -63,6 +66,22 @@ function userAlreadyExists {
     return $alreadyExists
 }
 
+function updateUserObject {
+    param (
+        [string]$userGUID
+    )
+    #Update the user object
+    Set-ADUser -Identity $userGUID -GivenName $userObject.GivenName -Surname $userObject.Surname -DisplayName $userObject.DisplayName -EmailAddress $userObject.EmailAddress -OfficePhone $userObject.OfficePhone
+}
+
+function moveUserObject {
+    param (
+        [string]$userGUID
+    )
+    #Move user to new OU
+    Move-ADObject -Identity $userGUID -TargetPath $userObject.path
+}
+
 if (userAlreadyExists) {
     $userGUID = (Get-ADUser -Filter "Name -eq '$($userObject.Name)'").ObjectGUID
     #. $debugModule -message $userGUID
@@ -91,6 +110,7 @@ if (userAlreadyExists) {
     updateUserObject -userGUID $userGUID
 }
 else {
+    . $statsModule -created 1
     if ($readOnly) {
         #. $debugModule -message "Would have created user $($userObject.Name) in the Active Directory."
         return

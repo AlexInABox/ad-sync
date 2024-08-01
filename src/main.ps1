@@ -11,6 +11,7 @@ Param(
 
 #Modules
 $debugModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\debug.ps1"
+$statsModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\stats.ps1"
 $checkInputsModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\checkInputs.ps1"
 $sanitizeModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\sanitize.ps1"
 $syncModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\sync.ps1"
@@ -27,6 +28,13 @@ try {
 catch {
     . $debugModule -message "No old logs found."
 }
+#Delete old stats
+try {
+    Remove-Item -Path "./modules/stats.log" -ErrorAction Stop
+}
+catch {
+    . $debugModule -message "No old stats found."
+}
 
 #Check if all required inputs are available
 if (-Not (. $checkInputsModule -tablePath $tablePath -configPath $configPath)) {
@@ -34,6 +42,7 @@ if (-Not (. $checkInputsModule -tablePath $tablePath -configPath $configPath)) {
     exitScript
 }
 . $debugModule -message  "All checks succeeded."
+. $debugModule -message  " "
 
 #Sanitize input table
 $sanitizedTablePath = . $sanitizeModule -path $tablePath -configPath $configPath
@@ -42,7 +51,12 @@ if ($sanitizedTablePath -eq "") {
     exitScript
 }
 . $debugModule -message  "Input table successfully sanitized!"
+. $debugModule -message  " "
 
 #Use the sanitized table to fill the Active Directory specified in the config
 . $syncModule -csvPath $sanitizedTablePath -configPath $configPath -readOnly $readOnly
 . $debugModule -message  "Script finished. Exiting. (Yippie :3)"
+. $debugModule -message  " "
+
+#Print the stats
+. $statsModule -debugStats 1

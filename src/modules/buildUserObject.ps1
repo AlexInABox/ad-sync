@@ -7,7 +7,7 @@ Param(
 )
 
 #Load config values
-$configObject = Get-Content -Path $configPath -Raw | ConvertFrom-Json
+$configObject = Get-Content -Path $configPath -Encoding UTF8 | ConvertFrom-Json
 $parentDN = $configObject.parentDN
 [string]$defaultUserPassword = $configObject.defaultUserPassword
 

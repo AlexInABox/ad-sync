@@ -64,30 +64,31 @@ function userAlreadyExists {
 }
 
 if (userAlreadyExists) {
-    #. $debugModule -message "User $($userObject.Name) already exists in the Active Directory."
+    $userGUID = (Get-ADUser -Filter "Name -eq '$($userObject.Name)'").ObjectGUID
+    #. $debugModule -message $userGUID
+    $existingUserPath = (Get-ADUser -Identity $userGUID).DistinguishedName
+    $existingUserPath = ($existingUserPath -split ",")
+    $first, $rest = $existingUserPath
+    $existingUserPath = $rest
+    if (-Not(([string]$existingUserPath) -eq ([string]($userObject.path -split ",")))) {
+        #. $debugModule -message "User $($userObject.Name) already exists in the correct OU."
+        . $statsModule -moved 1
+        if ($readOnly) {
+            #. $debugModule -message "Would have moved user $($userObject.Name) to OU $($userObject.path)."
+            return
+        }
+        ensureOUExists($userObject.path)
+        moveUserObject -userGUID (Get-ADUser -Filter "Name -eq '$($userObject.Name)'").ObjectGUID
+        $userGUID = (Get-ADUser -Filter "Name -eq '$($userObject.Name)'").ObjectGUID
+        #. $debugModule -message $userGUID
+    } else {
+        . $statsModule -updated 1
+    }
     if ($readOnly) {
-        #. $debugModule -message "Would have deleted and recreated user $($userObject.Name) in the Active Directory."
+        #. $debugModule -message "Would have updated user $($userObject.Name) in the Active Directory."
         return
     }
-    #Copy old permissions and then delete old user
-    $oldUser = (Get-ADUser -Filter "Name -eq '$($userObject.Name)'")
-    $oldUserGroups = Get-ADUser -Identity $oldUser.SamAccountName -Properties MemberOf | Select-Object -ExpandProperty MemberOf | Get-ADGroup | Select-Object -ExpandProperty Name
-    $oldUserGroups = $oldUserGroups -split " "
-
-    #Delete old user
-    #. $debugModule -message "Deleting user $($userObject.Name)"
-    Remove-ADUser -Identity $oldUser.SamAccountName -Confirm:$false
-
-    #Recreate user
-    #. $debugModule -message "Recreating user $($userObject.Name)"
-    ensureOUExists($userObject.path)
-    New-ADUser @userObject
-
-    #Add new user to old user groups
-    for ($i = 0; $i -lt $oldUserGroups.Length; $i++) {
-        #. $debugModule -message "Re-adding user $($userObject.Name) to group $($oldUserGroups[$i])"
-        Add-ADGroupMember -Identity $oldUserGroups[$i] -Members $userObject.SamAccountName
-    }
+    updateUserObject -userGUID $userGUID
 }
 else {
     if ($readOnly) {

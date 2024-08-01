@@ -35,7 +35,6 @@ function testJSONKey {
         [psobject]$jsonObject,
         [string]$key
     )
-
     return $jsonObject.PSObject.Properties.Name -contains $key
 }
 
@@ -59,7 +58,7 @@ function checkConfig {
 
     #Check if all keys exist and have proper values
     $requiredKeysInConfig = "csvDelimiter", "maxUsersToProccess", "parentDN", "header", "defaultUserPassword"
-    $jsonContent = Get-Content -Path $configPath -Raw
+    $jsonContent = Get-Content -Path $configPath -Raw -Encoding UTF8
     $jsonObject = $jsonContent | ConvertFrom-Json
 
     foreach ($key in $requiredKeysInConfig) {

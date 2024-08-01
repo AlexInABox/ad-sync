@@ -16,7 +16,7 @@ $addUserObjectToAD = Join-Path -Path $PSScriptRoot -ChildPath "addUserObjectToAD
 $debugModule = Join-Path -Path $PSScriptRoot -ChildPath "debug.ps1"
 
 #Load config values
-$configObject = Get-Content -Path $configPath -Raw | ConvertFrom-Json
+$configObject = Get-Content -Path $configPath -Encoding UTF8 | ConvertFrom-Json
 [char]$delimiter = $configObject.csvDelimiter
 $header = $configObject.header -split $delimiter
 

@@ -9,7 +9,7 @@ Param(
 $tmpDirectory = Resolve-Path ".\tmp"
 
 #Load config values
-$configObject = Get-Content -Path $configPath -Raw | ConvertFrom-Json
+$configObject = Get-Content -Path $configPath -Encoding UTF8 | ConvertFrom-Json
 $maxUsersToProccess = $configObject.maxUsersToProccess
 $debugModule = Join-Path -Path $PSScriptRoot -ChildPath "debug.ps1"
 
@@ -23,6 +23,7 @@ function clearTMP {
     Remove-Item -Path $tmpDirectory"\*"
     . $debugModule -message "TMP directory cleared."
 }
+
 function copyTableToTMP {
     param (
         [string]$path

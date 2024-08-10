@@ -27,7 +27,7 @@
             <mxPoint x="610" y="380" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="VKUWItF-dHO9J4EB_5Dz-0" value="&lt;div&gt;Yes&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="5lyKl6DLMmzoOjCNzCt0-32">
+        <mxCell id="VKUWItF-dHO9J4EB_5Dz-0" value="&lt;div&gt;Yes&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="5lyKl6DLMmzoOjCNzCt0-32" vertex="1" connectable="0">
           <mxGeometry x="0.1584" y="2" relative="1" as="geometry">
             <mxPoint x="-2" y="-3" as="offset" />
           </mxGeometry>
@@ -38,7 +38,7 @@
         <mxCell id="5lyKl6DLMmzoOjCNzCt0-29" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" source="5lyKl6DLMmzoOjCNzCt0-16" target="5lyKl6DLMmzoOjCNzCt0-28" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="VKUWItF-dHO9J4EB_5Dz-1" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="5lyKl6DLMmzoOjCNzCt0-29">
+        <mxCell id="VKUWItF-dHO9J4EB_5Dz-1" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="5lyKl6DLMmzoOjCNzCt0-29" vertex="1" connectable="0">
           <mxGeometry x="-0.0667" y="3" relative="1" as="geometry">
             <mxPoint x="-3" as="offset" />
           </mxGeometry>
@@ -86,14 +86,11 @@
             <Array as="points" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="5lyKl6DLMmzoOjCNzCt0-37" value="Copy permissions of existing user to new user object" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;strokeWidth=1;spacing=6;spacingTop=-4;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="730" y="390" width="120" height="60" as="geometry" />
+        <mxCell id="5lyKl6DLMmzoOjCNzCt0-37" value="Move user to new location" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;strokeWidth=1;spacing=6;spacingTop=-4;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+          <mxGeometry x="730" y="400" width="120" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="E1JjQikFOwez6qDgKbT3-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" source="5lyKl6DLMmzoOjCNzCt0-41" target="E1JjQikFOwez6qDgKbT3-6" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="5lyKl6DLMmzoOjCNzCt0-41" value="Delete old user" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;strokeWidth=1;spacing=6;spacingTop=-4;align=center;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
-          <mxGeometry x="730" y="500" width="120" height="40" as="geometry" />
+        <mxCell id="5lyKl6DLMmzoOjCNzCt0-41" value="Refresh user propertiers" style="rounded=1;whiteSpace=wrap;html=1;shadow=0;strokeWidth=1;spacing=6;spacingTop=-4;align=center;" parent="WIyWlLk6GJQsqaUBKTNV-1" vertex="1">
+          <mxGeometry x="730" y="495" width="120" height="50" as="geometry" />
         </mxCell>
         <mxCell id="E1JjQikFOwez6qDgKbT3-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="WIyWlLk6GJQsqaUBKTNV-1" source="E1JjQikFOwez6qDgKbT3-5" target="E1JjQikFOwez6qDgKbT3-6" edge="1">
           <mxGeometry relative="1" as="geometry" />

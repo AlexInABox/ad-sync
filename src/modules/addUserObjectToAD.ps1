@@ -13,7 +13,7 @@ Param(
 $debugModule = Join-Path -Path $PSScriptRoot -ChildPath "debug.ps1"
 $statsModule = Join-Path -Path $PSScriptRoot -ChildPath "stats.ps1"
 
-#import-module ActiveDirectory
+import-module ActiveDirectory
 
 #Check if all the OUs in the path of a user exist, if not create them
 function ensureOUExists {

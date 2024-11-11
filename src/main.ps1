@@ -60,3 +60,7 @@ if ($sanitizedTablePath -eq "") {
 
 #Print the stats
 . $statsModule -debugStats 1
+
+$date = Get-Date -Format "yyddMM_HHmm"
+Copy-Item "./modules/debug.log" "./modules/debug_$date.log"
+Copy-Item "./modules/stats.log" "./modules/stats_$date.log"

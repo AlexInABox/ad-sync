@@ -40,7 +40,6 @@ catch {
 if (-Not (. $checkInputsModule -tablePath $tablePath -configPath $configPath)) {
     . $debugModule -message "At least one file you provided failed the checks!"
     exitScript
-    #Exit
 }
 . $debugModule -message  "All checks succeeded."
 . $debugModule -message  " "
@@ -50,7 +49,6 @@ $sanitizedTablePath = . $sanitizeModule -path $tablePath -configPath $configPath
 if ($sanitizedTablePath -eq "") {
     . $debugModule -message "Failed to sanitize input table."
     exitScript
-    #Exit
 }
 . $debugModule -message  "Input table successfully sanitized!"
 . $debugModule -message  " "

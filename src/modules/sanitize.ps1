@@ -41,17 +41,17 @@ function removeHeaderFromCSV() {
    
     if ($maxUsersToProccess -eq 0) {
         $content = Get-Content $file | Select-Object -Skip 1
-        Write-Host "No limit on users to process."
+        . $debugModule -message "No limit on users to process." # revoked commented and changed to debugModule, MRX
     }
     else {
         $content = Get-Content $file | Select-Object -Skip 1 -First $maxUsersToProccess
-        Write-Host "Limiting users to process to $maxUsersToProccess."
+        . $debugModule -message "Limiting user to process to $maxUsersToProcess." # revoked commented and changed to debugModule, MRX
     }
     # Write the modified content back to the same file, overwriting it
     $content | Set-Content $file
 }
 
-#TODO: Sanitze based on rules or interaction with the user
+#TODO (Betke): Sanitze based on rules or interaction with the user
 
 createTMP
 clearTMP

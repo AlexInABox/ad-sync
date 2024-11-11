@@ -18,7 +18,7 @@ $syncModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\sync.ps1"
 
 function exitScript {
     . $debugModule -message "Exiting script."
-    return
+    Exit
 }
 
 #Delete old logs
@@ -60,3 +60,7 @@ if ($sanitizedTablePath -eq "") {
 
 #Print the stats
 . $statsModule -debugStats 1
+
+$date = Get-Date -Format "yyddMM_HHmm"
+Copy-Item "./modules/debug.log" "./modules/debug_$date.log"
+Copy-Item "./modules/stats.log" "./modules/stats_$date.log"

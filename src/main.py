@@ -89,11 +89,15 @@ class App(customtkinter.CTk):
             tkinterPath = StringVar()
             tkinterPath.set(path)
             if path.endswith(".json") or path.endswith(".JSON"):
-                self.configPathLabel.configure(text="Yippie!  I accept this config for now :3", text_color="green")
+                #self.configPathLabel.configure(text="Yippie!  I accept this config for now :3", text_color="green")
+                self.configPathLabel.configure(text="Drag & Drop the config file here\n(Accepted)")
+                self.config_picker.configure(fg_color="green")
                 self.config_picker.configure(textvariable=tkinterPath)
             else:
                 self.config_picker.configure(textvariable=StringVar())
-                self.configPathLabel.configure(text="The config file must be in JSON format", text_color="red")
+                #self.configPathLabel.configure(text="The config file must be in JSON format", text_color="red")
+                self.configPathLabel.configure(text="Drag & Drop the config file here\n(The config file must be in JSON format)")
+                self.config_picker.configure(fg_color="red")
             updateEntry()
 
         def checkIfCSV(event):
@@ -101,11 +105,15 @@ class App(customtkinter.CTk):
             tkinterPath = StringVar()
             tkinterPath.set(path)
             if path.endswith(".csv") or path.endswith(".CSV"):
-                self.tablePathLabel.configure(text="Yippie!  I accept this table for now :3", text_color="green")
+                #self.tablePathLabel.configure(text="Yippie!  I accept this table for now :3", text_color="green")
+                self.tablePathLabel.configure(text="Drag & Drop the table file here\n(Accepted)")
+                self.table_picker.configure(fg_color="green")
                 self.table_picker.configure(textvariable=tkinterPath)
             else:
                 self.table_picker.configure(textvariable=StringVar())
-                self.tablePathLabel.configure(text="The input table file must be in CSV format", text_color="red")
+                #self.tablePathLabel.configure(text="The input table file must be in CSV format", text_color="red")
+                self.tablePathLabel.configure(text="Drag & Drop the table file here\n(The input table file must be in CSV format)")
+                self.table_picker.configure(fg_color="red")
             updateEntry()
 
         self.config_picker = customtkinter.CTkEntry(master=self.tabview.tab("Set input files"))
@@ -129,7 +137,7 @@ class App(customtkinter.CTk):
         #Preview Config
         def loadConfig():
             try:
-                with open(self.config_picker.get(), "r") as file:
+                with open(self.config_picker.get(), mode="r", encoding="utf-8") as file:
                     self.configPreview.configure(state="normal")
                     self.configPreview.delete("0.0", "end")
                     self.configPreview.insert("0.0", file.read())
@@ -148,7 +156,7 @@ class App(customtkinter.CTk):
         #Preview table
         def loadTable():
             try:
-                with open(self.table_picker.get(), "r") as file:
+                with open(self.table_picker.get(), mode="r", encoding="utf-8") as file:
                     self.tablePreview.configure(state="normal")
                     self.tablePreview.delete("0.0", "end")
                     for i in range(10):
@@ -176,7 +184,8 @@ class App(customtkinter.CTk):
         self.appearance_mode_optionemenu.set("System")
         self.scaling_optionemenu.set("100%")
         self.entry.configure(state="disabled")
-        self.textbox.insert("0.0", "ad-sync log:\n\n" + "Don't do the cat!\n" * 40)
+        #self.textbox.insert("0.0", "ad-sync log:\n\n" + "Don't do the cat!\n" * 40)
+        self.textbox.insert("0.0", "ad-sync log")
         self.textbox.configure(state="disabled")
         self.configPreview.configure(state="disabled")
         self.tablePreview.configure(state="disabled")

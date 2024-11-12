@@ -17,20 +17,35 @@ $groups = [System.Collections.ArrayList]@()
 
 function showSelectDialog {
     # display dialog
-    $selectedGroups = $groups | Out-GridView -Title "Select which groups to KEEP!" -OutputMode Multiple
+    $user = Get-ADUser -Identity $currentUser -Properties DisplayName
+    $userName = $user.givenName + " " + $user.surname
+    $selectedGroups = $groups | Out-GridView -Title "Select which groups to KEEP for `"$userName`" ($currentUser)" -OutputMode Multiple
     return $selectedGroups
 }
 
-function removeUserFromGroups {
+function removeUserFromUnselectedGroups {
     param (
         $selectedGroups
     )
 
+    #The list is empty when the user dismissed the popup via the "X"
+    if ($selectedGroups.count -eq 0) { 
+        Write-Host "User aborted. Won't remove any group from user '$currentUser'"
+        return
+    }
+
     foreach ($group in $selectedGroups) {
+        $groups.Remove($group)
+    }
+
+    foreach ($group in $groups) {
         # remove user from group
-        $adUser = "msd" + $currentUser
-        Write-Host "Would remove group '$group' from user '$currentUser'"
-        #Remove-ADGroupMember -Identity $group -Members $adUser
+        if ($readOnly) {
+            Write-Host "Would remove group '$group' from user '$currentUser'"
+            continue
+        }
+        Write-Host "Removing group '$group' from user '$currentUser'"
+        Remove-ADGroupMember -Identity $group -Members $currentUser -Confirm:$false
     }
 }
 
@@ -40,10 +55,7 @@ Get-Content -Path $filePath | ForEach-Object {
         # empty line -> script is finished TODO display last elements
         if ($currentUser -ne $null) {
             $selectedGroups = showSelectDialog
-            foreach ($group in $selectedGroups) {
-                $groups.Remove($group)
-            }
-            removeUserFromGroups $groups
+            removeUserFromUnselectedGroups $selectedGroups
             $currentUser = $null
             $groups = [System.Collections.ArrayList]@()
         }
@@ -57,3 +69,5 @@ Get-Content -Path $filePath | ForEach-Object {
         $currentUser = $_.Substring(6, 8)
     }
 }
+
+Write-Host "EOF reached."

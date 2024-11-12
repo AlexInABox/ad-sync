@@ -1,7 +1,7 @@
 # -*- mode: python ; coding: utf-8 -*-
 from PyInstaller.utils.hooks import collect_all
 
-datas = [('main.ps1', '.'), ('modules', 'modules'), ('tmp', 'tmp')]
+datas = [('main.ps1', '.'), ('modules', 'modules'), ('tmp', 'tmp'), ('logs', 'logs')]
 binaries = []
 hiddenimports = []
 tmp_ret = collect_all('tkinterdnd2')

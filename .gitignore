@@ -8,3 +8,4 @@ modules/debug.log
 test.json
 test.csv
 .vscode
+src/tmp/example.log

@@ -9,6 +9,7 @@ import shutil
 import tempfile
 import os
 import sys
+import re
 
 
 class CTk(customtkinter.CTk, TkinterDnD.DnDWrapper):
@@ -256,11 +257,17 @@ class App(customtkinter.CTk):
             time.sleep(1) #Delay the termination of the thread to ensure the log file is read completely
             commandFinished.set()
             
+        def retrieveLogFiles(src_dir):
+            pattern = re.compile(r"\d+\.log$")
+            for filename in os.listdir(src_dir):
+                if pattern.search(filename):
+                    shutil.copy(os.path.join(src_dir, filename), ".")
+
         def readLogFile(self, refreshLog):
             log = ""
             while not commandFinished.is_set():
                 try:
-                    with open(temp_dir + "/modules/debug.log", "r") as file:
+                    with open(temp_dir + "/logs/debug.log", "r") as file:
                         log = file.read()
                 except:
                     log = "Error reading the log file"
@@ -268,6 +275,9 @@ class App(customtkinter.CTk):
                     refreshLog(log)
                 time.sleep(1)
             appendLog("\n\nScript execution finished\n")
+            retrieveLogFiles(os.path.join(tempfile.gettempdir(), 'ad-sync/logs'))
+        
+        
 
         threading.Thread(target=executeCommand).start()
         threading.Thread(target=readLogFile, args=(self, refreshLog)).start()
@@ -291,27 +301,36 @@ def initiateCopyProccess():
     if getattr(sys, 'frozen', False):
         # If the application is frozen, this is the temporary folder created by PyInstaller
         bundle_dir = sys._MEIPASS
+        print(bundle_dir)
     else:
         # If the application is not frozen, use the script's directory
         bundle_dir = os.path.dirname(os.path.abspath(__file__))
+        print(bundle_dir)
 
     # Path to the temporary directory
-    temp_dir = tempfile.gettempdir()
+    temp_dir = os.path.join(tempfile.gettempdir(), 'ad-sync')
+
+    # Check if the directory exists, if not, create it
+    if not os.path.exists(temp_dir):
+        os.makedirs(temp_dir)
 
     # Paths to the bundled resources
     script_src_path = os.path.join(bundle_dir, 'main.ps1')
     modules_src_path = os.path.join(bundle_dir, 'modules')
+    logs_src_path = os.path.join(bundle_dir, 'logs')
     tmp_src_path = os.path.join(bundle_dir, 'tmp')
 
 
     # Paths to the temporary locations
     script_temp_path = os.path.join(temp_dir, 'main.ps1')
     modules_temp_path = os.path.join(temp_dir, 'modules')
+    logs_temp_path = os.path.join(temp_dir, 'logs')
     tmp_temp_path = os.path.join(temp_dir, 'tmp')
 
     # Copy the script and the modules directory to the temporary location
     copy_to_temp(script_src_path, script_temp_path)
     copy_to_temp(modules_src_path, modules_temp_path)
+    copy_to_temp(logs_src_path, logs_temp_path)
     copy_to_temp(tmp_src_path, tmp_temp_path)
 
 if __name__ == "__main__":

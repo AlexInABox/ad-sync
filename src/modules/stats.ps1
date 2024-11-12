@@ -8,7 +8,7 @@ Param(
     [Parameter(Mandatory = $false)]
     [bool]$debugStats = 0
 )
-$statsFile = "./modules/stats.log"
+$statsFile = Join-Path -Path $PSScriptRoot -ChildPath "..\logs\stats.log"
 #Modules
 $debugModule = Join-Path -Path $PSScriptRoot -ChildPath "debug.ps1"
 

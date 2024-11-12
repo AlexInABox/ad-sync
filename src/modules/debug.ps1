@@ -3,7 +3,7 @@ Param(
     [string]$message
 )
 
-$logFile = "./modules/debug.log"
+$logFile = Join-Path -Path $PSScriptRoot -ChildPath "..\logs\debug.log"
 
 Write-Host $message
 Add-Content -Path $logFile -Value $message

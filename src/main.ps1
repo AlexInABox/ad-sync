@@ -18,19 +18,25 @@ $syncModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\sync.ps1"
 
 function exitScript {
     . $debugModule -message "Exiting script."
+    . $statsModule -debugStats 1
+    $date = Get-Date -Format "yyddMM_HHmm"
+    Copy-Item "./logs/debug.log" "./logs/debug_$date.log"
+    Copy-Item "./logs/stats.log" "./logs/stats_$date.log"
     Exit
 }
 
 #Delete old logs
 try {
-    Remove-Item -Path "./modules/debug.log" -ErrorAction Stop
+    Remove-Item -Path "./logs/debug.log" -ErrorAction Stop
+    New-Item -ItemType file -Path "./logs/debug.log"
 }
 catch {
     . $debugModule -message "No old logs found."
+    New-Item -ItemType file -Path "./logs/debug.log"
 }
 #Delete old stats
 try {
-    Remove-Item -Path "./modules/stats.log" -ErrorAction Stop
+    Remove-Item -Path "./logs/stats.log" -ErrorAction Stop
 }
 catch {
     . $debugModule -message "No old stats found."
@@ -62,5 +68,5 @@ if ($sanitizedTablePath -eq "") {
 . $statsModule -debugStats 1
 
 $date = Get-Date -Format "yyddMM_HHmm"
-Copy-Item "./modules/debug.log" "./modules/debug_$date.log"
-Copy-Item "./modules/stats.log" "./modules/stats_$date.log"
+Copy-Item "./logs/debug.log" "./logs/debug_$date.log"
+Copy-Item "./logs/stats.log" "./logs/stats_$date.log"

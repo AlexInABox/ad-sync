@@ -10,3 +10,4 @@ test.csv
 .vscode
 /*.log
 /src/*.log
+ad-sync.exe

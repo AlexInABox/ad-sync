@@ -13,6 +13,11 @@ on:
         options:
           - 'yes'
           - 'no'
+      version_name:
+        description: 'Version name or number'
+        required: false  # Not required initially
+        default: ''
+        type: string
 
 jobs:
   build:
@@ -32,16 +37,20 @@ jobs:
       run: |
         cp -fr src/dist/windows/main.exe ad-sync.exe
         sudo rm -rf src/dist
-
-    - name: Commit and push artifact
-      uses: stefanzweifel/git-auto-commit-action@v5
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
       with:
-        commit_message: AUTO-COMPILED
+        name: ad-sync
+        path: src/dist/windows/main.exe ad-sync.exe
+        if-no-files-found: error
 
     - name: Create GitHub Release
+      if: "${{ github.event.inputs.create_release == 'yes' }}"
       uses: softprops/action-gh-release@v1
       with:
         draft: true
+        name: ${{github.event.inputs.version_name}}
         files: ad-sync.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

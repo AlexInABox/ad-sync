@@ -33,16 +33,15 @@ jobs:
       with:
         path: src
 
-    - name: Copy artifact to root
+    - name: Rename binary
       run: |
-        cp -fr src/dist/windows/main.exe ad-sync.exe
-        sudo rm -rf src/dist
+        cp -fr src/dist/windows/main.exe src/dist/windows/ad-sync.exe
     
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
         name: ad-sync
-        path: src/dist/windows/main.exe ad-sync.exe
+        path: src/dist/windows/ad-sync.exe
         if-no-files-found: error
 
     - name: Create GitHub Release
@@ -51,6 +50,6 @@ jobs:
       with:
         draft: true
         name: ${{github.event.inputs.version_name}}
-        files: ad-sync.exe
+        files: src/dist/windows/ad-sync.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

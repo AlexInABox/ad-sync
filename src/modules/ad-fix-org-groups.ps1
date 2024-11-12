@@ -17,7 +17,9 @@ $groups = [System.Collections.ArrayList]@()
 
 function showSelectDialog {
     # display dialog
-    $selectedGroups = $groups | Out-GridView -Title "Select which groups to KEEP!" -OutputMode Multiple
+    $user = Get-ADUser -Identity $currentUser -Properties DisplayName
+    $userName = $user.givenName + " " + $user.surname
+    $selectedGroups = $groups | Out-GridView -Title "Select which groups to KEEP for `"$userName`" ($currentUser)" -OutputMode Multiple
     return $selectedGroups
 }
 

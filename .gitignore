@@ -12,3 +12,4 @@ test.csv
 /src/*.log
 ad-sync.exe
 /src/logs/foundusers_*.log
+src/tmp/testcsv2.csv

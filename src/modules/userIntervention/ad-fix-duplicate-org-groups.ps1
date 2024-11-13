@@ -17,9 +17,9 @@ $groups = [System.Collections.ArrayList]@()
 
 function showSelectDialog {
     # display dialog
-    $user = Get-ADUser -Identity $currentUser -Properties DisplayName
-    $userName = $user.givenName + " " + $user.surname
-    $selectedGroups = $groups | Out-GridView -Title "Select which groups to KEEP for `"$userName`" ($currentUser)" -OutputMode Multiple
+    $userFullName = $currentUser.givenName + " " + $currentUser.surname
+    $userName = $currentUser.Name
+    $selectedGroups = $groups | Out-GridView -Title "Select which groups to KEEP for `"$userFullName`" ($userName)" -OutputMode Multiple
     return $selectedGroups
 }
 
@@ -27,10 +27,11 @@ function removeUserFromUnselectedGroups {
     param (
         $selectedGroups
     )
+    $userName = $currentUser.Name
 
     #The list is empty when the user dismissed the popup via the "X"
     if ($selectedGroups.count -eq 0) { 
-        Write-Host "User aborted. Won't remove any group from user '$currentUser'"
+        Write-Host "User aborted. Won't remove any group from user '$userName'"
         return
     }
 
@@ -40,18 +41,19 @@ function removeUserFromUnselectedGroups {
 
     foreach ($group in $groups) {
         # remove user from group
+        $userName = $currentUser.Name
         if ($readOnly) {
-            Write-Host "Would remove group '$group' from user '$currentUser'"
+            Write-Host "Would remove group '$group' from user '$userName'"
             continue
         }
-        Write-Host "Removing group '$group' from user '$currentUser'"
+        Write-Host "Removing group '$group' from user '$userName'"
         Remove-ADGroupMember -Identity $group -Members $currentUser -Confirm:$false
     }
 }
 
 # Read each line of the file and process it
 Get-Content -Path $filePath | ForEach-Object {
-    if ([String]::IsNullOrEmpty($_)) {
+    if ($_ -eq " ") {
         # empty line -> script is finished TODO display last elements
         if ($currentUser -ne $null) {
             $selectedGroups = showSelectDialog
@@ -66,7 +68,8 @@ Get-Content -Path $filePath | ForEach-Object {
     } 
     if ($_.StartsWith("User")) {
         # set current user string
-        $currentUser = $_.Substring(6, 8)
+        $extractedName = $_.Split("'", 3)[1]
+        $currentUser = Get-ADUser -Filter "Name -eq '$extractedName'"
     }
 }
 

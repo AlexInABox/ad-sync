@@ -1,19 +1,23 @@
 Param(
     [Parameter(Mandatory = $true)]
-    [string]$configPath
+    [string]$configPath,
+
+    [Parameter(Mandatory = $false)]
+    [bool]$readOnly = 1
 )
 
 #import modules
-$debugModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\debug.ps1"
+$debugModule = Join-Path -Path $PSScriptRoot -ChildPath "..\debug.ps1"
+$fixADModule = Join-Path -Path $PSScriptRoot -ChildPath ".\ad-fix-duplicate-org-groups.ps1"
+
 
 # date for generating log file name
 $date = Get-Date -Format "yyddMM_HHmm"
-$logFile = Join-Path -Path $PSScriptRoot -ChildPath "\logs\foundusers_$date.log"
+$foundUsersLogFile = Join-Path -Path $PSScriptRoot -ChildPath "..\..\logs\foundusers_$date.log"
 
 $configObject = Get-Content -Path $configPath -Encoding UTF8 | ConvertFrom-Json
 #search base ADUsers will be searched in
 $searchBase = $configObject.parentDN
-
 
 #endregion
 
@@ -32,8 +36,8 @@ function printLog {
         [string]$message
     )
 
-    Add-Content -Path $logFile -Value $message
-    . $debugModule -message $message
+    Add-Content -Path $foundUsersLogFile -Value $message
+    . $debugModule $message
 }
 
 # get shortened ldap string for user
@@ -55,15 +59,15 @@ function iterateAD {
     $progress = 0
     $foundUsers = 0
     foreach ($user in $users) {
-        Write-Progress -Activity "Searching ADUsers... ($($user.SamAccountName))" -Status "($progress / $($users.Length)) completed" -PercentComplete $(($progress / $users.Length) * 100)
+        Write-Progress -Activity "Searching ADUsers... ($($user.Name))" -Status "($progress / $($users.Length)) completed" -PercentComplete $(($progress / $users.Length) * 100)
 
         # get ADUser groups
         $groups = Get-ADPrincipalGroupMembership -Identity $user
         $organizationGroups = [System.Collections.ArrayList]@()
         foreach ($group in $groups) {
             # check if group starts with 'g-org-' that signals a organization group
-            if ($group.SamAccountName.StartsWith("g-org-")) {
-                [void]$organizationGroups.Add($group.SamAccountName)
+            if ($group.Name.StartsWith("g-org-")) {
+                [void]$organizationGroups.Add($group.Name)
             }
         }
 
@@ -89,15 +93,17 @@ function iterateAD {
             foreach ($group in $organizationGroups) {
                 printLog -message "$([char]9)- $($group)"
             }
-            printLog -message "" #empty line to indicate context ending
+            printLog -message " " #empty line to indicate context ending
         }
         $progress++
     }
 
     # print amount of found users to console and log
-    printMessage -message "`n`n$foundUsers ADUsers with no or multiple organization groups were found. A detailed overview was written to 'foundusers_$date.log'."
+    printMessage -message "`n`n$foundUsers ADUsers with no or multiple organization groups were found. A detailed overview was written to $foundUsersLogFile."
     printLog -message "`n`n$foundUsers ADUsers with no or multiple organization groups were found."
 }
 
 . $debugModule -message "Starting to collect users with abnormal org groups."
 iterateAD
+
+. $fixADModule -filePath $foundUsersLogFile -readOnly $readOnly

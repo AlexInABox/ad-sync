@@ -6,6 +6,9 @@ Param(
     [string]$configPath,
 
     [Parameter(Mandatory = $false)]
+    [bool]$cleanup = 0,
+
+    [Parameter(Mandatory = $false)]
     [bool]$readOnly = 1
 )
 
@@ -15,6 +18,7 @@ $statsModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\stats.ps1"
 $checkInputsModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\checkInputs.ps1"
 $sanitizeModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\sanitize.ps1"
 $syncModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\sync.ps1"
+$cleanupModule = Join-Path -Path $PSScriptRoot -ChildPath "\modules\userIntervention\ad-collect-abnormal-org-groups.ps1"
 
 function exitScript {
     . $debugModule -message "Exiting script."
@@ -61,11 +65,21 @@ if ($sanitizedTablePath -eq "") {
 
 #Use the sanitized table to fill the Active Directory specified in the config
 . $syncModule -csvPath $sanitizedTablePath -configPath $configPath -readOnly $readOnly
-. $debugModule -message  "Script finished. Exiting. (Yippie :3)"
+. $debugModule -message  "Sync finished."
 . $debugModule -message  " "
 
 #Print the stats
 . $statsModule -debugStats 1
+
+if ($cleanup) {
+    #do some clenup
+    . $debugModule -message  "Startin the cleanup process..."
+    . $debugModule -message  " "
+    . $cleanupModule -configPath $configPath -readOnly $readOnly
+}
+
+. $debugModule -message  "Creating log files."
+. $debugModule -message  " "
 
 $date = Get-Date -Format "yyddMM_HHmm"
 Copy-Item "./logs/debug.log" "./logs/debug_$date.log"

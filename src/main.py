@@ -57,7 +57,7 @@ class App(customtkinter.CTk):
         self.scaling_optionemenu.grid(row=8, column=0, padx=20, pady=(10, 20))
 
         # create main entry and button
-        self.entry = customtkinter.CTkEntry(self, placeholder_text="./main.ps1 -configPath config.json -tablePath table.csv -readOnly 1")
+        self.entry = customtkinter.CTkEntry(self, placeholder_text="./main.ps1 -configPath config.json -tablePath table.csv -cleanup 0 -readOnly 1")
         self.entry.grid(row=3, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="nsew")
 
         self.main_button_1 = customtkinter.CTkButton(master=self, command=self.startSyncProcess)
@@ -79,7 +79,7 @@ class App(customtkinter.CTk):
         #File Picker
         def updateEntry():
             self.entry.configure(state="normal")
-            self.entry.configure(placeholder_text="./main.ps1 -configPath \"" + self.config_picker.get() + "\" -tablePath \"" + self.table_picker.get() + "\" -readOnly " + str(self.checkbox_1.get()))
+            self.entry.configure(placeholder_text="./main.ps1 -configPath \"" + self.config_picker.get() + "\" -tablePath \"" + self.table_picker.get() + "\" -cleanup " + str(self.checkbox_2.get()) + " -readOnly " + str(self.checkbox_1.get()))
             self.entry.configure(state="disabled")
 
         def getPathFromEvent(event):
@@ -180,6 +180,8 @@ class App(customtkinter.CTk):
         self.checkbox_slider_frame.grid(row=1, column=2, columnspan=2, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.checkbox_1 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame, command=updateEntry)
         self.checkbox_1.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="n")
+        self.checkbox_2 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame, command=updateEntry)
+        self.checkbox_2.grid(row=1, column=1, pady=(20, 0), padx=20, sticky="n")
 
         # set default values
         self.appearance_mode_optionemenu.set("System")
@@ -192,6 +194,7 @@ class App(customtkinter.CTk):
         self.tablePreview.configure(state="disabled")
         self.checkbox_1.configure(text="Read only mode?")
         self.checkbox_1.select()
+        self.checkbox_2.configure(text="Cleanup after sync?")
         self.main_button_1.configure(fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), text="Sync Active Directory")
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
@@ -213,7 +216,7 @@ class App(customtkinter.CTk):
         #Check if the config and table file are set
         #Update one last time
         self.entry.configure(state="normal")
-        self.entry.configure(placeholder_text="./main.ps1 -configPath \"" + self.config_picker.get() + "\" -tablePath \"" + self.table_picker.get() + "\" -readOnly " + str(self.checkbox_1.get()))
+        self.entry.configure(placeholder_text="./main.ps1 -configPath \"" + self.config_picker.get() + "\" -tablePath \"" + self.table_picker.get() + "\" -cleanup " + str(self.checkbox_2.get()) + " -readOnly " + str(self.checkbox_1.get()))
         self.entry.configure(state="disabled")
         
         if (self.config_picker.get() == "" or self.table_picker.get() == ""):

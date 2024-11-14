@@ -16,6 +16,8 @@ $debugModule = Join-Path -Path $PSScriptRoot -ChildPath "..\debug.ps1"
 
 $date = Get-Date -Format "yyddMM_HHmm"
 $cleanupLogFile = Join-Path -Path $PSScriptRoot -ChildPath "..\..\logs\cleanup_$date.log"
+$cleanupCombinedLogFile = Join-Path -Path $PSScriptRoot -ChildPath "..\..\logs\cleanupCombined.log"
+
 
 $currentUser = $null
 $dn = $null
@@ -36,6 +38,7 @@ function printLog {
     )
 
     Add-Content -Path $cleanupLogFile -Value $message
+    Add-Content -path $cleanupCombinedLogFile -Value $message
     . $debugModule $message
 }
 

@@ -29,9 +29,9 @@ class App(customtkinter.CTk):
 
         # configure window
         self.title("ad-sync - Active Directory Synchronization")
-        self.geometry(f"{1100}x{580}")
+        self.geometry(f"{1100}x{620}")
         #set the minimum size of the window
-        self.minsize(625, 440)
+        self.minsize(625, 370)
 
         # configure grid layout (4x4)
         self.grid_columnconfigure(1, weight=1)
@@ -61,15 +61,18 @@ class App(customtkinter.CTk):
         self.entry.grid(row=3, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="nsew")
 
         self.main_button_1 = customtkinter.CTkButton(master=self, command=self.startSyncProcess)
-        self.main_button_1.grid(row=3, column=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
+        self.main_button_1.grid(row=3, column=3, padx=(20, 10), pady=(20, 20), sticky="nsew")
+
+        self.cleanup_button = customtkinter.CTkButton(master=self, command=self.startCleanupProcess)
+        self.cleanup_button.grid(row=3, column=4, padx=(10, 20), pady=(20, 20), sticky="nsew")
 
         # create textbox
         self.textbox = customtkinter.CTkTextbox(self, width=250)
-        self.textbox.grid(row=0, rowspan=2, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
+        self.textbox.grid(row=0, rowspan=3, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
 
         # create tabview
         self.tabview = customtkinter.CTkTabview(self, width=400, height=390)
-        self.tabview.grid(row=0, column=2, columnspan=2, padx=(20, 20), pady=(20, 0), sticky="nsew")
+        self.tabview.grid(row=0, column=2, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.tabview.add("Set input files")
         self.tabview.add("Preview config")
         self.tabview.add("Preview table")
@@ -177,11 +180,11 @@ class App(customtkinter.CTk):
 
         # create checkbox and switch frame
         self.checkbox_slider_frame = customtkinter.CTkFrame(self, height=50)
-        self.checkbox_slider_frame.grid(row=1, column=2, columnspan=2, padx=(20, 20), pady=(20, 0), sticky="nsew")
+        self.checkbox_slider_frame.grid(row=1, column=2, rowspan=2, columnspan=3, padx=(20, 20), pady=(20, 0), sticky="nsew")
         self.checkbox_1 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame, command=updateEntry)
-        self.checkbox_1.grid(row=1, column=0, pady=(20, 0), padx=20, sticky="n")
+        self.checkbox_1.grid(row=1, column=1, pady=(20), padx=20, sticky="nsew")
         self.checkbox_2 = customtkinter.CTkCheckBox(master=self.checkbox_slider_frame, command=updateEntry)
-        self.checkbox_2.grid(row=1, column=1, pady=(20, 0), padx=20, sticky="n")
+        self.checkbox_2.grid(row=2, column=1, pady=(20), padx=20, sticky="nsew")
 
         # set default values
         self.appearance_mode_optionemenu.set("System")
@@ -196,6 +199,8 @@ class App(customtkinter.CTk):
         self.checkbox_1.select()
         self.checkbox_2.configure(text="Cleanup after sync?")
         self.main_button_1.configure(fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), text="Sync Active Directory")
+        self.cleanup_button.configure(fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), text="Cleanup!")
+
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -209,8 +214,88 @@ class App(customtkinter.CTk):
         #Open the GitHub Repository in the default browser
         webbrowser.open_new("https://github.com/alexinabox/ad-sync")
 
+    def startCleanupProcess(self):
+        self.main_button_1.configure(state="disabled")
+        self.cleanup_button.configure(state="disabled")
+        print("Cleanup Button was clicked! Yippie!")
+
+        #Check if the config and table file are set
+        #Update one last time
+        self.entry.configure(state="normal")
+        self.entry.configure(placeholder_text="./cleanup.ps1 -configPath \"" + self.config_picker.get() + "\" -readOnly " + str(self.checkbox_1.get()))
+        self.entry.configure(state="disabled")
+        
+        if (self.config_picker.get() == ""):
+            self.textbox.configure(state="normal")
+            self.textbox.delete("0.0", "end")
+            self.textbox.insert("0.0", "Please set the config file first")
+            self.textbox.configure(text_color="red")
+            self.textbox.configure(state="disabled")
+            self.main_button_1.configure(state="normal")
+            self.cleanup_button.configure(state="normal")
+            return
+        
+        #Execute command that sits in the entry field as a placeholder
+        self.textbox.configure(text_color=("black", "white"))
+        command = self.entry.cget("placeholder_text")
+        # add Set-Location '{temp_dir}'; to the command to ensure the script is executed in the correct directory
+        command = "Set-Location '" + temp_dir + "'; " + command
+        #modify command to actually work
+        command = command.replace("./cleanup.ps1", "./modules/userIntervention/ad-collect-abnormal-org-groups.ps1")
+        print(command)
+        self.textbox.configure(state="normal")
+        self.textbox.delete("0.0", "end")
+        self.textbox.configure(state="disabled")
+
+        def refreshLog(log):
+            self.textbox.configure(state="normal")
+            self.textbox.delete("0.0", "end")
+            self.textbox.insert("0.0", log)
+            self.textbox.see("end")
+            self.textbox.configure(state="disabled")
+        def appendLog(log):
+            self.textbox.configure(state="normal")
+            self.textbox.insert("end", log)
+            self.textbox.see("end")
+            self.textbox.configure(state="disabled")
+            self.main_button_1.configure(state="normal")
+            self.cleanup_button.configure(state="normal")
+        #Start a thread that reads the log file and updates the textbox every second
+        
+        commandFinished = threading.Event()
+        def executeCommand():
+            subprocess.call(["powershell.exe", command])
+            time.sleep(1) #Delay the termination of the thread to ensure the log file is read completely
+            commandFinished.set()
+            
+        def retrieveLogFiles(src_dir):
+            pattern = re.compile(r"\d+\.log$")
+            for filename in os.listdir(src_dir):
+                if pattern.search(filename):
+                    shutil.copy(os.path.join(src_dir, filename), ".")
+
+        def readLogFile(self, refreshLog):
+            log = ""
+            while not commandFinished.is_set():
+                try:
+                    with open(temp_dir + "/logs/cleanupCombined.log", "r") as file:
+                        log = file.read()
+                except:
+                    log = "Error reading the log file"
+                if log != self.textbox.get("0.0", "end"):
+                    refreshLog(log)
+                time.sleep(1)
+            appendLog("\n\nScript execution finished\n")
+            retrieveLogFiles(os.path.join(tempfile.gettempdir(), 'ad-sync/logs'))
+        
+        
+
+        threading.Thread(target=executeCommand).start()
+        threading.Thread(target=readLogFile, args=(self, refreshLog)).start()
+
     def startSyncProcess(self):
         self.main_button_1.configure(state="disabled")
+        self.cleanup_button.configure(state="disabled")
         print("Sync Active Directory Button was clicked! Yippie!")
 
         #Check if the config and table file are set
@@ -246,12 +331,13 @@ class App(customtkinter.CTk):
             self.textbox.insert("0.0", log)
             self.textbox.see("end")
             self.textbox.configure(state="disabled")
-            self.main_button_1.configure(state="normal")
         def appendLog(log):
             self.textbox.configure(state="normal")
             self.textbox.insert("end", log)
             self.textbox.see("end")
             self.textbox.configure(state="disabled")
+            self.main_button_1.configure(state="normal")
+            self.cleanup_button.configure(state="normal")
         #Start a thread that reads the log file and updates the textbox every second
         
         commandFinished = threading.Event()

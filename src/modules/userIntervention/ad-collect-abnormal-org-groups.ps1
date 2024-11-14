@@ -14,12 +14,25 @@ $fixADModule = Join-Path -Path $PSScriptRoot -ChildPath ".\ad-fix-duplicate-org-
 # date for generating log file name
 $date = Get-Date -Format "yyddMM_HHmm"
 $foundUsersLogFile = Join-Path -Path $PSScriptRoot -ChildPath "..\..\logs\foundusers_$date.log"
+$cleanupCombinedLogFile = Join-Path -Path $PSScriptRoot -ChildPath "..\..\logs\cleanupCombined.log"
+
 
 $configObject = Get-Content -Path $configPath -Encoding UTF8 | ConvertFrom-Json
 #search base ADUsers will be searched in
 $searchBase = $configObject.parentDN
 
 #endregion
+
+#delete old combinedLog File
+function deleteOldLogFile {
+    param($Path)
+    if (Test-Path $Path) {
+        Remove-Item $Path -Force
+    }
+    New-Item $Path -ItemType File | Out-Null
+}
+
+deleteOldLogFile($cleanupCombinedLogFile)
 
 # print message to console
 function printMessage {
@@ -37,6 +50,7 @@ function printLog {
     )
 
     Add-Content -Path $foundUsersLogFile -Value $message
+    Add-Content -Path $cleanupCombinedLogFile -Value $message
     . $debugModule $message
 }
 

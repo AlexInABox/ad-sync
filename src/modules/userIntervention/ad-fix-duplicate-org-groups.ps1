@@ -11,9 +11,33 @@ param (
     [bool]$readOnly = 1
 )
 
+#Import modules
+$debugModule = Join-Path -Path $PSScriptRoot -ChildPath "..\debug.ps1"
+
+$date = Get-Date -Format "yyddMM_HHmm"
+$cleanupLogFile = Join-Path -Path $PSScriptRoot -ChildPath "..\..\logs\cleanup_$date.log"
+
 $currentUser = $null
 $dn = $null
 $groups = [System.Collections.ArrayList]@()
+
+function printMessage {
+    param (
+        [string]$message
+    )
+
+    Write-Host $message
+}
+
+# print message to log file
+function printLog {
+    param (
+        [string]$message
+    )
+
+    Add-Content -Path $cleanupLogFile -Value $message
+    . $debugModule $message
+}
 
 function showSelectDialog {
     # display dialog
@@ -31,7 +55,8 @@ function removeUserFromUnselectedGroups {
 
     #The list is empty when the user dismissed the popup via the "X"
     if ($selectedGroups.count -eq 0) { 
-        Write-Host "User aborted. Won't remove any group from user '$userName'"
+        printMessage "User aborted. Won't remove any group from user '$userName'"
+        printLog "User aborted. Won't remove any group from user '$userName'"
         return
     }
 
@@ -43,10 +68,12 @@ function removeUserFromUnselectedGroups {
         # remove user from group
         $userName = $currentUser.Name
         if ($readOnly) {
-            Write-Host "Would remove group '$group' from user '$userName'"
+            printLog "Would remove group '$group' from user '$userName'"
+            printMessage  "Would remove group '$group' from user '$userName'"
             continue
         }
-        Write-Host "Removing group '$group' from user '$userName'"
+        printLog "Removing group '$group' from user '$userName'"
+        printMessage  "Removing group '$group' from user '$userName'"
         Remove-ADGroupMember -Identity $group -Members $currentUser -Confirm:$false
     }
 }
@@ -73,4 +100,5 @@ Get-Content -Path $filePath | ForEach-Object {
     }
 }
 
-Write-Host "EOF reached."
+printLog "Cleanup finished. Log has been written to `"cleanup_$date.log`""
+printMessage  "Cleanup finished. Log has been written to `"cleanup_$date.log`""

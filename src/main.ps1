@@ -70,6 +70,7 @@ if ($sanitizedTablePath -eq "") {
 
 #Print the stats
 . $statsModule -debugStats 1
+. $debugModule -message  " "
 
 if ($cleanup) {
     #do some clenup

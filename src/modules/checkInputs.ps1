@@ -34,8 +34,11 @@ function checkTable {
     # Check if CSV has empty fields (Added, MRX)
     $configObject = Get-Content -Path $configPath -Encoding UTF8 | ConvertFrom-Json
     [char]$delimiter = $configObject.csvDelimiter
-    $header = $configObject.header -split $delimiter
-
+    if ($delimiter -eq "|") {
+        $header = $configObject.header -split "\|"
+    } else {
+        $header = $configObject.header -split $delimiter
+    }
     # check content of csv
     $csv = Import-Csv -Path $path -Delimiter $delimiter -Header $header -Encoding UTF8
     $faultFound = $false

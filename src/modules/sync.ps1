@@ -18,8 +18,11 @@ $debugModule = Join-Path -Path $PSScriptRoot -ChildPath "debug.ps1"
 #Load config values
 $configObject = Get-Content -Path $configPath -Encoding UTF8 | ConvertFrom-Json
 [char]$delimiter = $configObject.csvDelimiter
-$header = $configObject.header -split $delimiter
-
+if ($delimiter -eq "|") {
+    $header = $configObject.header -split "\|"
+} else {
+    $header = $configObject.header -split $delimiter
+}
 #Import the CSV file with custom header
 $data = @(Import-Csv -Path $csvPath -Delimiter $delimiter -Header $header -Encoding UTF8)
 

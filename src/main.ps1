@@ -64,8 +64,12 @@ if ($sanitizedTablePath -eq "") {
 . $debugModule -message  " "
 
 #Use the sanitized table to fill the Active Directory specified in the config
-. $syncModule -csvPath $sanitizedTablePath -configPath $configPath -readOnly $readOnly
-. $debugModule -message  "Sync finished."
+$didThisWork = . $syncModule -csvPath $sanitizedTablePath -configPath $configPath -readOnly $readOnly
+if (-Not $didThisWork) {
+    . $debugModule -message  "Sync failed!"
+} else {
+    . $debugModule -message  "Sync finished."
+}
 . $debugModule -message  " "
 
 #Print the stats

@@ -88,7 +88,7 @@ function checkConfig {
     } 
 
     #Check if all keys exist and have proper values
-    $requiredKeysInConfig = "csvDelimiter", "maxUsersToProccess", "parentDN", "header", "defaultUserPassword"
+    $requiredKeysInConfig = "csvDelimiter", "maxUsersToProccess", "parentDN", "header", "defaultUserPassword", "groupParentDN"
     $jsonContent = Get-Content -Path $configPath -Raw -Encoding UTF8
     $jsonObject = $jsonContent | ConvertFrom-Json
 

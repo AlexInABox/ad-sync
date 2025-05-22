@@ -1,0 +1,6 @@
+In Powershell:
+
+cd \\msd\dfs\Admin\dev\users\betke\ad-sync\src
+python main.py
+
+Yay!! >.<

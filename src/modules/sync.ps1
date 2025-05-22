@@ -36,9 +36,12 @@ foreach ($user in $data) {
     $userObject = . $buildUserObjectModule -csvUserLine $user -configPath $configPath
 
     #Add the user to the Active Directory
-    . $addUserObjectToAD -userObject $userObject -configPath $configPath -readOnly $readOnly
-
+    $didItWork = . $addUserObjectToAD -userObject $userObject -configPath $configPath -readOnly $readOnly
     $processedUserCount++
+
+    if (-Not $didItWork) {
+        return $false
+    }
 
     if  (-Not ($processedUserCount % $reportProcessedUserCountInterval) -Or ($processedUserCount -eq $data.Length)) {
         . $debugModule -message "Processed $($processedUserCount)/$($data.Length) users."
@@ -48,3 +51,5 @@ foreach ($user in $data) {
 if ($readOnly) {
     . $debugModule -message "Script ran in read-only mode. No changes were made to the Active Directory."
 }
+
+return $true
